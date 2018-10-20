@@ -94,6 +94,7 @@ function checkScore() {
 
     $('#questions').hide();
     $('#clock').hide();
+    $('#submit').hide();
 
     //TODO: 
     // figure out the score:
@@ -110,9 +111,17 @@ function checkScore() {
 }
 
 function renderSplash() {
+
+    var form = $('#main');
+    let correct = wrong = 0;
+
+    $('<div>')
+        .html(`<h2>Correct: ${correct}</h2><br><h2>Incorrect: ${wrong}</h2>`)
+        .appendTo(form);
+
     //todo: Render the win/loss splash:
     // if(lost)
-    $('#splash').text('You get nothing! You lose! Good day sir!'); //wonka.gif
+    // $('#splash').text('You get nothing! You lose! Good day sir!'); //wonka.gif
     // if (win)
     //haven't decided yet.
 }

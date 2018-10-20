@@ -21,19 +21,16 @@
 
 <body>
     <div id="clock">00:00</div>
-    <div class="col-md-6">
-        <form action="" id="questions"></form>
+    <div class="col-md-6" id="main">
+        <form action="">
+            <div id="questions"></div>
+            <button name="submit" id="submit" class="fa fa-arrow-right btn-primary" onclick="checkScore()">
+                <br>
+                <label for="submit">Submit</label>
+            </button>
+            <script src="assets/javascript/app.js"></script>
+        </form>
     </div>
-    <form action="">
-
-        <button name="submit" id="submit" class="fa fa-arrow-right btn-primary" onclick="checkScore()">
-            <br>
-            <label for="submit">Submit</label>
-        </button>
-
-        <script src="assets/javascript/app.js"></script>
-    </form>
-
 </body>
 
 </html>
