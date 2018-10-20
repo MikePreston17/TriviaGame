@@ -1,0 +1,17 @@
+#questions {
+    background: #c89;
+    width: 960;
+    border: 1px solid green;
+}
+
+#clock {
+    font-family: monospace;
+    font-size: 80px;
+    color: green;
+    text-align: center;
+    background: black;
+}
+
+input {
+    margin: 10px;
+}

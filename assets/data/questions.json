@@ -1,0 +1,12 @@
+[{
+    "Question": "What is the airspeed of an unladen swallow?",
+    "Answers": ["", "11 for African swallows", "What do you mean? African or European?", "25 for European swallows", ""],
+    "Time Limit": "02:30",
+    "Quip": "Well, you have to know these things when you're king, you know."
+}, {
+    "Question": "What is the capital of Assyria?",
+    "Answers": ["Calah", "Nineveh", "Ashur", "Dur Sharrukin"],
+    "Correct Answer": "E",
+    "Time Limit": "02:30",
+    "Quip": "I don't know that!  Arrrgh!"
+}]
