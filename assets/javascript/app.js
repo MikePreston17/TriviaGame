@@ -26,25 +26,21 @@ function init() {
 
     refreshLocked = localStorage.getItem('refreshed');
 
-    questions.forEach(question => {
-        renderQuestion(question);
+    questions.forEach((question, index) => {
+        renderQuestion(question, index);
     });
 
-    $("input[type='radio']").click(function () {
-        // console.log('clicked radio button!', );
-        // var value = $("input[name='rbtn']:checked").val();
-        // console.log('is checked? ', value);
-        let position = $(this).attr('data-pos');
-        console.log('position: ', position)
-    })
+    // $("input[type='radio']").click(function () {    
+    // var value = $("input[name='rbtn']:checked").val();
+    // console.log('is checked? ', value);
+    // console.log('position: ', position)        
+    // let position = $(this).attr('data-pos');
+    // })
 
-    //add up all the questions' times in seconds.
     clockTimeMS = questions.map(s => getSeconds(s.TimeLimit)).reduce(sum);
-    // console.log(`Full Time Limit:  ${clockTimeMS}`);
-    remainingTime = 5;
 
     //todo: uncomment when done.
-    // remainingTime = clockTimeMS;
+    remainingTime = clockTimeMS;
     // if (refreshLocked) {
     //     fullTime /= 2;
     //   antiCheatActive = true;
@@ -96,32 +92,49 @@ function sum(total, num) {
 function checkScore() {
     var scorecard = [];
 
-    $("input[type='radio']:checked").each(function (index) {
+    $('#questions').hide();
+    $('#clock').hide();
+
+    //TODO: 
+    // figure out the score:
+    $("input[type='radio']:checked").each(function () {
         let button = $(this);
         let position = button.attr('data-pos');
 
         console.log('radio #: ', position);
-        console.log('question #: ', index);
+        // console.log('question #: ', index);
+        scorecard.selected = position;
     })
+
+    renderSplash()
 }
 
-
+function renderSplash() {
+    //todo: Render the win/loss splash:
+    // if(lost)
+    $('#splash').text('You get nothing! You lose! Good day sir!'); //wonka.gif
+    // if (win)
+    //haven't decided yet.
+}
 
 //Render as a radio button
-function renderQuestion(question, renderType) {
+function renderQuestion(question, index, renderType) {
 
     var form = $('#questions');
-    //Render the question text above as a styled <p> tag or h3,h4, etc.
 
     $('<h4>').text(question.Question).appendTo(form);
     var choicesDiv = $('<div>').appendTo(form)
 
     for (i = 0; i < question.Answers.length; i++) {
-        let choice = question.Answers[i];
+        let choiceText = question.Answers[i];
 
         let choiceElement = $(`<input type="radio" name="rbtn - ${question.Question}" class="answer" data-pos="${i}">
-            <label>${choice}</label>
+            <label>${choiceText}</label>
         </input>`)
+
+        choiceElement.attr({
+            'question': index,
+        })
 
         choiceElement.appendTo(choicesDiv);
     };
@@ -226,7 +239,6 @@ function range(start, end) {
 function randomInt(min, max, inclusive) {
     return Math.floor(Math.random() * (max - min + (inclusive ? 1 : 0))) + min;
 }
-
 
 var wait = ms => new Promise((r, j) => {
     setTimeout(r, ms);
