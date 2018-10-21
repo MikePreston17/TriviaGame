@@ -1,8 +1,3 @@
-//TODOs
-
-//1.  Render the initial game layout using CSS
-const questionsPath = 'assets/data/questions.json';
-
 var questions;
 var refreshLocked, antiCheatActive;
 var clockTimeMS = 0, //holds the calculated question time; Immutable.
@@ -11,7 +6,6 @@ var intervalId;
 var lock = false;
 
 window.onload = function () {
-    console.log('ON LOAD()', );
     init();
 }
 
@@ -24,19 +18,16 @@ window.onload = function () {
 function init() {
 
     $('#submit').on('click', function () {
+        stop();
         remainingTime = 0;
         tallyScore();
     })
 
     questions = createQuestions();
-    // console.log('questions:\n', questions);
+    questions.shuffle();
 
-    var shuffled = questions.shuffle();
-    // console.log('shuffled: \n', shuffled);
+    // refreshLocked = localStorage.getItem('refreshed');
 
-    refreshLocked = localStorage.getItem('refreshed');
-
-    console.log('RENDERING QUESTIONS()', );
     questions.forEach((question, index) => { //todo: replace with shuffled
         renderQuestion(question, index);
     });
@@ -54,73 +45,8 @@ function init() {
     runClock();
 }
 
-/**
- * credit: https: //stackoverflow.com/questions/6274339/how-can-i-shuffle-an-array
- * Shuffles array in place.
- * @param {Array} a items An array containing the items.
- */
-function shuffle(a) {
-    var j, x, i;
-    for (i = a.length - 1; i > 0; i--) {
-        j = Math.floor(Math.random() * (i + 1));
-        x = a[i];
-        a[i] = a[j];
-        a[j] = x;
-    }
-    return a;
-}
-
-function scramble(array) {
-    let n = array.length;
-    array.forEach(a => {
-        swap(array[randomInt(0, n)], array[randomInt(0, n)]);
-    })
-}
-
-function swap(a, b) {
-    var temp = a;
-    a = b;
-    b = temp;
-}
-
-function runClock() {
-    if (!lock) {
-        intervalId = setInterval(decrement, 1000);
-        lock = true;
-    }
-}
-
-function decrement() {
-    remainingTime--;
-    renderClock();
-
-    if (remainingTime <= 0) {
-        stop();
-        $("#main").prepend($('<h1>').text("Time's up!"));
-        // alert("Time's up!");
-        //todo: also create a splash screen or H1, something to indicate win/loss for those who've disabled alerts.
-
-        tallyScore();
-    }
-}
-
-function stop() {
-    clearInterval(intervalId);
-    lock = false;
-}
-
 function renderClock() {
     $('#clock').text(`Time Remaining ${timeConverter(remainingTime)}`);
-}
-
-function getSeconds(miniTimestamp) {
-    var parts = miniTimestamp.split(":");
-    var seconds = parseInt(parts[0]) * 60 + parseInt(parts[1]);
-    return seconds;
-}
-
-function sum(total, num) {
-    return total + num;
 }
 
 function tallyScore() {
@@ -165,14 +91,6 @@ function tallyScore() {
     wrong = questions.length - correct;
 
     renderSplash(correct, wrong);
-}
-
-function intersect(a, b) {
-    var t;
-    if (b.length > a.length) t = b, b = a, a = t; // indexOf to loop over shorter
-    return a.filter(function (e) {
-        return b.indexOf(e) > -1;
-    });
 }
 
 var renderedSplash = false;
@@ -271,6 +189,73 @@ function createQuestions() {
     return questions;
 }
 
+
+/**
+ * credit: https: //stackoverflow.com/questions/6274339/how-can-i-shuffle-an-array
+ * Shuffles array in place.
+ * @param {Array} a items An array containing the items.
+ */
+function shuffle(a) {
+    var j, x, i;
+    for (i = a.length - 1; i > 0; i--) {
+        j = Math.floor(Math.random() * (i + 1));
+        x = a[i];
+        a[i] = a[j];
+        a[j] = x;
+    }
+    return a;
+}
+
+function scramble(array) {
+    let n = array.length;
+    array.forEach(a => {
+        swap(array[randomInt(0, n)], array[randomInt(0, n)]);
+    })
+}
+
+function swap(a, b) {
+    var temp = a;
+    a = b;
+    b = temp;
+}
+
+function runClock() {
+    if (!lock) {
+        intervalId = setInterval(decrement, 1000);
+        lock = true;
+    }
+}
+
+function decrement() {
+    remainingTime--;
+    renderClock();
+
+    if (remainingTime <= 0) {
+        stop();
+        $("#main").prepend($('<h1>').text("Time's up!"));
+        alert("Time's up!");
+        //todo: also create a splash screen or H1, something to indicate win/loss for those who've disabled alerts.
+
+        tallyScore();
+    }
+}
+
+function stop() {
+    clearInterval(intervalId);
+    lock = false;
+}
+
+
+function getSeconds(miniTimestamp) {
+    var parts = miniTimestamp.split(":");
+    var seconds = parseInt(parts[0]) * 60 + parseInt(parts[1]);
+    return seconds;
+}
+
+function sum(total, num) {
+    return total + num;
+}
+
 Array.prototype.shuffle = function () {
     return shuffle(this);
 }
@@ -298,6 +283,15 @@ function randomInt(min, max, inclusive) {
 var wait = ms => new Promise((r, j) => {
     setTimeout(r, ms);
 })
+
+function intersect(a, b) {
+    var t;
+    if (b.length > a.length) t = b, b = a, a = t; // indexOf to loop over shorter
+    return a.filter(function (e) {
+        return b.indexOf(e) > -1;
+    });
+}
+
 
 function timeConverter(s) {
     //  Takes the current time in seconds and convert it to minutes and seconds (mm:ss).

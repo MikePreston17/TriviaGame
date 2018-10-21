@@ -5,13 +5,18 @@
 }
 
 #clock {
-    font-family: monospace;
-    font-size: 80px;
-    color: green;
+    font-family: Monda, monospace;
+    font-size: 60px;
+    color: rgb(255, 123, 0);
     text-align: center;
-    background: black;
-    width: 960px;
-    /* width:  */
+    background: rgb(11, 47, 206);
+    width: 560px;
+}
+
+body {
+    background-image: url("../backgrounds/polonez_car_@2X.png");
+    padding: 0px;
+    margin: 0px;
 }
 
 input {
