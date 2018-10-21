@@ -10,8 +10,13 @@
     color: green;
     text-align: center;
     background: black;
+    /* width:  */
 }
 
 input {
     margin: 10px;
+}
+
+.container {
+    width: 960px;
 }

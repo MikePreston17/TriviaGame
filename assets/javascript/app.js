@@ -7,26 +7,31 @@ var questions;
 var refreshLocked, antiCheatActive;
 var clockTimeMS = 0, //holds the calculated question time; Immutable.
     remainingTime; //mutable.
-
+var answerSheet; //stored answers
 var intervalId;
 var lock = false;
 
 $(document).ready(() => {
-    questions = createQuestions();
-    console.log('questions:\n', questions);
     init();
 })
 
-window.onbeforeunload = function () {
-    localStorage.setItem('refreshed', true);
-    return "Dude, are you sure you want to leave? Think of the kittens!";
-}
+//todo: uncomment when done:
+// window.onbeforeunload = function () {
+//     localStorage.setItem('refreshed', true);
+//     return "Dude, are you sure you want to leave? Think of the kittens!";
+// }
 
 function init() {
 
+    questions = createQuestions();
+    console.log('questions:\n', questions);
+
+    var shuffled = questions.shuffle();
+    console.log('shuffled: \n', shuffled);
+
     refreshLocked = localStorage.getItem('refreshed');
 
-    questions.forEach((question, index) => {
+    questions.forEach((question, index) => { //todo: replace with shuffled
         renderQuestion(question, index);
     });
 
@@ -48,6 +53,35 @@ function init() {
 
     renderClock();
     runClock();
+}
+
+/**
+ * credit: https: //stackoverflow.com/questions/6274339/how-can-i-shuffle-an-array
+ * Shuffles array in place.
+ * @param {Array} a items An array containing the items.
+ */
+function shuffle(a) {
+    var j, x, i;
+    for (i = a.length - 1; i > 0; i--) {
+        j = Math.floor(Math.random() * (i + 1));
+        x = a[i];
+        a[i] = a[j];
+        a[j] = x;
+    }
+    return a;
+}
+
+function scramble(array) {
+    let n = array.length;
+    array.forEach(a => {
+        swap(array[randomInt(0, n)], array[randomInt(0, n)]);
+    })
+}
+
+function swap(a, b) {
+    var temp = a;
+    a = b;
+    b = temp;
 }
 
 function runClock() {
@@ -90,30 +124,36 @@ function sum(total, num) {
 }
 
 function checkScore() {
-    var scorecard = [];
+    // var scorecard = [];
 
     $('#questions').hide();
     $('#clock').hide();
     $('#submit').hide();
 
+    let correct = wrong = 0;
+
     //TODO: 
     // figure out the score:
     $("input[type='radio']:checked").each(function () {
         let button = $(this);
-        let position = button.attr('data-pos');
+        // let position = button.attr('data-pos');
+        let code = button.attr('data-code');
 
-        console.log('radio #: ', position);
+        // console.log('radio #: ', position);
+        console.log('code: ', code);
+
+
+
         // console.log('question #: ', index);
-        scorecard.selected = position;
+        // scorecard.selected = position;
     })
 
-    renderSplash()
+    renderSplash(correct, wrong)
 }
 
-function renderSplash() {
+function renderSplash(correct, wrong) {
 
     var form = $('#main');
-    let correct = wrong = 0;
 
     $('<div>')
         .html(`<h2>Correct: ${correct}</h2><br><h2>Incorrect: ${wrong}</h2>`)
@@ -136,14 +176,13 @@ function renderQuestion(question, index, renderType) {
 
     for (i = 0; i < question.Answers.length; i++) {
         let choiceText = question.Answers[i];
-
-        let choiceElement = $(`<input type="radio" name="rbtn - ${question.Question}" class="answer" data-pos="${i}">
+        let choiceElement = $(`<input type="radio" name="rbtn - ${question.Question}" class="answer" data-code="${question.Answers[i].hashCode()}" data-pos="${question.Question.hashCode()}">
             <label>${choiceText}</label>
-        </input>`)
+        </input>`);
 
         choiceElement.attr({
             'question': index,
-        })
+        });
 
         choiceElement.appendTo(choicesDiv);
     };
@@ -154,7 +193,7 @@ function createQuestions() {
     //for 4 answer or less questions, always the first answer is correct.  Scrambled.
     //for T/F questions, the first answer is always correct.  Scrambled.
 
-    return [{
+    let questions = [{
         "Question": "What is the airspeed of an unladen swallow?",
         "Answers": ["25 m/s for Asian swallows", "8 m/s for African swallows", "What do you mean? African or European?", "10 m/s for European swallows"],
         "TimeLimit": "02:30",
@@ -181,9 +220,8 @@ function createQuestions() {
         "Quip": "1337",
         "TimeLimit": "00:45",
     }, {
-        "Question": "True or False: Neo from the Matrix was 'the One'",
-        "Answers": ["True", "False", "Idk, ask the Wachowski Bros..."],
-        "Correct Answer": "All",
+        "Question": "Who was the 'the One' from the Matrix?",
+        "Answers": ["Neo", "Agent Smith", "Oracle", "Trinity"],
         "TimeLimit": "01:00",
     }, {
         "Question": "Quark was a character from which Star Trek series?",
@@ -191,6 +229,16 @@ function createQuestions() {
         "TimeLimit": "00:30",
     }]
 
+    //this is so we can always shuffle the answers on the front end,
+    //but the backend knows the true answer, easily:
+    questions.forEach(question => {
+        question["Correct Answer"] = {
+            value: question.Answers[0],
+            code: question.Answers[0].hashCode(),
+        };
+    })
+
+    return questions;
 }
 
 //  {
@@ -232,6 +280,8 @@ function createQuestions() {
 // },
 // ]);
 
+
+
 //Helpers
 function loadQuestions(fileName) {
     $.getJSON(fileName, function (json) {
@@ -240,6 +290,22 @@ function loadQuestions(fileName) {
         // return result()
     });
 } //not working, due to Chrome being more 'secure' with local files...
+
+Array.prototype.shuffle = function () {
+    return shuffle(this);
+}
+
+String.prototype.hashCode = function () {
+    var hash = 0,
+        i, chr;
+    if (this.length === 0) return hash;
+    for (i = 0; i < this.length; i++) {
+        chr = this.charCodeAt(i);
+        hash = ((hash << 5) - hash) + chr;
+        hash |= 0;
+    }
+    return hash;
+}
 
 function range(start, end) {
     return [...Array(1 + end - start).keys()].map(v => start + v)
