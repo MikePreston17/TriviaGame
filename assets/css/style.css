@@ -13,8 +13,13 @@
     width: 560px;
 }
 
+h1,
+h2 {
+    color: white;
+}
+
 body {
-    background-image: url("../backgrounds/polonez_car_@2X.png");
+    background-image: url("../backgrounds/diagmonds.png");
     padding: 0px;
     margin: 0px;
 }
