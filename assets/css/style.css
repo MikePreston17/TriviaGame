@@ -1,5 +1,5 @@
 #questions {
-    background: #c89;
+    background: rgb(190, 210, 252);
     width: 960;
     border: 1px solid green;
 }
@@ -10,6 +10,7 @@
     color: green;
     text-align: center;
     background: black;
+    width: 960px;
     /* width:  */
 }
 

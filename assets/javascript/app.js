@@ -7,13 +7,13 @@ var questions;
 var refreshLocked, antiCheatActive;
 var clockTimeMS = 0, //holds the calculated question time; Immutable.
     remainingTime; //mutable.
-var answerSheet; //stored answers
 var intervalId;
 var lock = false;
 
-$(document).ready(() => {
+window.onload = function () {
+    console.log('ON LOAD()', );
     init();
-})
+}
 
 //todo: uncomment when done:
 // window.onbeforeunload = function () {
@@ -23,32 +23,31 @@ $(document).ready(() => {
 
 function init() {
 
+    $('#submit').on('click', function () {
+        remainingTime = 0;
+        tallyScore();
+    })
+
     questions = createQuestions();
-    console.log('questions:\n', questions);
+    // console.log('questions:\n', questions);
 
     var shuffled = questions.shuffle();
-    console.log('shuffled: \n', shuffled);
+    // console.log('shuffled: \n', shuffled);
 
     refreshLocked = localStorage.getItem('refreshed');
 
+    console.log('RENDERING QUESTIONS()', );
     questions.forEach((question, index) => { //todo: replace with shuffled
         renderQuestion(question, index);
     });
 
-    // $("input[type='radio']").click(function () {    
-    // var value = $("input[name='rbtn']:checked").val();
-    // console.log('is checked? ', value);
-    // console.log('position: ', position)        
-    // let position = $(this).attr('data-pos');
-    // })
-
     clockTimeMS = questions.map(s => getSeconds(s.TimeLimit)).reduce(sum);
+    remainingTime = clockTimeMS;
 
     //todo: uncomment when done.
-    remainingTime = clockTimeMS;
     // if (refreshLocked) {
-    //     fullTime /= 2;
-    //   antiCheatActive = true;
+    //     clockTimeMS /= 2;
+    //     antiCheatActive = true;
     // }
 
     renderClock();
@@ -97,10 +96,11 @@ function decrement() {
 
     if (remainingTime <= 0) {
         stop();
-        alert("Time's up!");
+        $("#main").prepend($('<h1>').text("Time's up!"));
+        // alert("Time's up!");
         //todo: also create a splash screen or H1, something to indicate win/loss for those who've disabled alerts.
 
-        checkScore();
+        tallyScore();
     }
 }
 
@@ -123,8 +123,7 @@ function sum(total, num) {
     return total + num;
 }
 
-function checkScore() {
-    // var scorecard = [];
+function tallyScore() {
 
     $('#questions').hide();
     $('#clock').hide();
@@ -134,24 +133,55 @@ function checkScore() {
 
     //TODO: 
     // figure out the score:
+    var playerAnswers = [];
     $("input[type='radio']:checked").each(function () {
         let button = $(this);
-        // let position = button.attr('data-pos');
+        let position = button.attr('data-pos');
         let code = button.attr('data-code');
 
-        // console.log('radio #: ', position);
+        console.log('radio #: ', position);
         console.log('code: ', code);
-
-
-
         // console.log('question #: ', index);
-        // scorecard.selected = position;
+        playerAnswers.push(parseInt(code));
     })
 
-    renderSplash(correct, wrong)
+    console.log('questions (tally) ', questions);
+
+    var codes = [];
+    questions.forEach((question, index) => {
+        console.log('question ', question);
+        console.log('question.code ', question["Correct Answer"].code);
+        console.log('question.value ', question["Correct Answer"].value);
+        codes.push(question["Correct Answer"].code);
+    });
+
+    console.log('correct answers: ', codes);
+    console.log('player answers: ', playerAnswers);
+
+    let intersection = intersect(codes, playerAnswers);
+    console.log('intersection ', intersection);
+
+    correct = intersection.length;
+    wrong = questions.length - correct;
+
+    renderSplash(correct, wrong);
 }
 
+function intersect(a, b) {
+    var t;
+    if (b.length > a.length) t = b, b = a, a = t; // indexOf to loop over shorter
+    return a.filter(function (e) {
+        return b.indexOf(e) > -1;
+    });
+}
+
+var renderedSplash = false;
+
 function renderSplash(correct, wrong) {
+
+    if (renderedSplash) return;
+
+    renderedSplash = true;
 
     var form = $('#main');
 
@@ -159,11 +189,11 @@ function renderSplash(correct, wrong) {
         .html(`<h2>Correct: ${correct}</h2><br><h2>Incorrect: ${wrong}</h2>`)
         .appendTo(form);
 
-    //todo: Render the win/loss splash:
-    // if(lost)
-    // $('#splash').text('You get nothing! You lose! Good day sir!'); //wonka.gif
-    // if (win)
-    //haven't decided yet.
+    if (wrong === 0)
+        $('<h1>').text("You sure know trivia!").appendTo(form);
+    else
+        $('<h1>').text("Aww, rotten luck!").appendTo(form);
+
 }
 
 //Render as a radio button
@@ -224,7 +254,7 @@ function createQuestions() {
         "Answers": ["Neo", "Agent Smith", "Oracle", "Trinity"],
         "TimeLimit": "01:00",
     }, {
-        "Question": "Quark was a character from which Star Trek series?",
+        "Question": "Quark was a main character from which Star Trek series?",
         "Answers": ["Star Trek: Deep Space Nine", "Star Trek: The Original Series", "Star Trek: Voyager", "Star Trek: The Next Generation"],
         "TimeLimit": "00:30",
     }]
@@ -240,56 +270,6 @@ function createQuestions() {
 
     return questions;
 }
-
-//  {
-//     "Question": "",
-//     "Answers": ["", "", "", ""],
-//     "Correct Answer": "",
-// }, {
-//     "Question": "",
-//     "Answers": ["", "", "", ""],
-//     "Correct Answer": "",
-// }, {
-//     "Question": "",
-//     "Answers": ["", "", "", ""],
-//     "Correct Answer": "",
-// }, {
-//     "Question": "",
-//     "Answers": ["", "", "", ""],
-//     "Correct Answer": "",
-// }, {
-//     "Question": "",
-//     "Answers": ["", "", "", ""],
-//     "Correct Answer": "",
-// }, {
-//     "Question": "",
-//     "Answers": ["", "", "", ""],
-//     "Correct Answer": "",
-// }, {
-//     "Question": "",
-//     "Answers": ["", "", "", ""],
-//     "Correct Answer": "",
-// }, {
-//     "Question": "",
-//     "Answers": ["", "", "", ""],
-//     "Correct Answer": "",
-// }, {
-//     "Question": "",
-//     "Answers": ["", "", "", ""],
-//     "Correct Answer": "",
-// },
-// ]);
-
-
-
-//Helpers
-function loadQuestions(fileName) {
-    $.getJSON(fileName, function (json) {
-        console.log('json ', json);
-    }).then((result) => {
-        // return result()
-    });
-} //not working, due to Chrome being more 'secure' with local files...
 
 Array.prototype.shuffle = function () {
     return shuffle(this);
